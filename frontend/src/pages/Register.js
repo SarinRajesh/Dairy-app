@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './Register.css';
+import { API_BASE_URL } from '../config';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -181,7 +182,7 @@ const Register = () => {
       // Remove confirmPassword before sending
       const { confirmPassword, ...userData } = formData;
       
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
