@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { apiRequest, isTokenValid } from "../utils/auth";
+import { API_BASE_URL } from "../config";
 import "./BuyMilk.css";
 
 const BuyMilk = () => {
@@ -118,7 +119,7 @@ const BuyMilk = () => {
         specialInstructions: deliveryForm.specialInstructions
       };
 
-      const response = await apiRequest('http://localhost:5000/api/orders/create', {
+      const response = await apiRequest(`${API_BASE_URL}/api/orders/create`, {
         method: 'POST',
         body: JSON.stringify(orderData)
       });

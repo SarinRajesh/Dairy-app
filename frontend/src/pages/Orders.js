@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { apiRequest } from '../utils/auth';
+import { API_BASE_URL } from '../config';
 import './Orders.css';
 
 const Orders = () => {
@@ -17,7 +18,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await apiRequest('http://localhost:5000/api/orders/my-orders');
+      const response = await apiRequest(`${API_BASE_URL}/api/orders/my-orders`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -39,7 +40,7 @@ const Orders = () => {
     }
 
     try {
-      const response = await apiRequest(`http://localhost:5000/api/orders/${orderId}/cancel`, {
+      const response = await apiRequest(`${API_BASE_URL}/api/orders/${orderId}/cancel`, {
         method: 'PUT'
       });
 
