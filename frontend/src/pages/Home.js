@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./Home.css";
@@ -17,8 +18,8 @@ const Home = () => {
           <h2>Fresh Farm Milk Delivered Daily</h2>
           <p>Experience the pure taste of fresh, organic milk straight from our dairy farm. No preservatives, no additives - just pure, natural goodness delivered to your doorstep every morning.</p>
           <div className="hero-buttons">
-            <a href="/buy" className="btn btn-primary">Order Fresh Milk</a>
-            <a href="/orders" className="btn btn-secondary">Track Delivery</a>
+            <Link to="/buy-milk" className="btn btn-primary">Order Fresh Milk</Link>
+            <Link to="/orders" className="btn btn-secondary">Track Delivery</Link>
           </div>
         </div>
       </div>

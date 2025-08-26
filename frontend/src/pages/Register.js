@@ -203,9 +203,8 @@ const Register = () => {
         throw new Error(data.message || 'Registration failed');
       }
       
-      // Show success message and redirect
-      setError(''); // Clear any previous errors
-      alert(`✅ Registration successful! Welcome ${data.user.firstName}! Please login with your new account.`);
+      // Success: clear any previous errors and redirect to login
+      setError('');
       navigate('/login');
       
     } catch (error) {

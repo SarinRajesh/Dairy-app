@@ -438,6 +438,109 @@
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
+/* Fix hover for toggle button to avoid jitter */
+.btn-toggle {
+  will-change: transform, box-shadow;
+  background: #ffffff;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+}
+
+.btn-toggle::before {
+  display: none; /* avoid white overlay from base .btn effect */
+}
+
+.btn-toggle:hover {
+  background: #3b82f6;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Change Password UI */
+.change-password-form {
+  margin-top: 16px;
+}
+
+.change-password-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.05);
+}
+
+.password-message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid;
+}
+
+.password-message.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #10b981;
+}
+
+.password-message.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #ef4444;
+}
+
+.password-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.password-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.password-input-wrapper input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+@media (max-width: 768px) {
+  .password-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .btn-secondary {
   background: #64748b;
   color: white;

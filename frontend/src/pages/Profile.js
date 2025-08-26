@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { getToken, getUser, setUser, clearToken, isTokenValid, apiRequest } from '../utils/auth';
 import dairyImage from '../assets/dairy.jpg';
 import './Profile.css';
+import { API_BASE_URL } from '../config';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -18,6 +19,33 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
+  
+  // Validate password like in Register page
+  const validateNewPassword = (value) => {
+    if (!value) return 'New password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters long';
+    if (!/(?=.*[a-z])/.test(value)) return 'Password must contain at least one lowercase letter';
+    if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
+    if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
+    if (!/(?=.*[@$!%*?&])/.test(value)) return 'Password must contain at least one special character (@$!%*?&)';
+    return '';
+  };
+  
+  const parseJsonSafe = async (response) => {
+    try {
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        return await response.json();
+      }
+      const text = await response.text();
+      return { message: text };
+    } catch (e) {
+      return { message: 'Unexpected response from server' };
+    }
+  };
   const [fieldErrors, setFieldErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [editForm, setEditForm] = useState({
@@ -189,12 +217,17 @@ const Profile = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      const response = await apiRequest('http://localhost:5000/api/auth/profile', {
+      const response = await apiRequest(`${API_BASE_URL}/api/auth/profile`, {
         method: 'PUT',
         body: JSON.stringify(editForm),
       });
 
-      const data = await response.json();
+      if (!response) {
+        setMessage({ type: 'error', text: 'Session expired. Please login again.' });
+        return;
+      }
+
+      const data = await parseJsonSafe(response);
 
       if (!response.ok) {
         // Handle backend validation errors
@@ -248,6 +281,63 @@ const Profile = () => {
     setUserState({});
     setTokenValid(false);
     navigate('/');
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm(prev => ({ ...prev, [name]: value }));
+    if (passwordMessage.type) setPasswordMessage({ type: '', text: '' });
+  };
+
+  const submitChangePassword = async (e) => {
+    e.preventDefault();
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'All password fields are required' });
+      return;
+    }
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      setPasswordMessage({ type: 'error', text: 'New password must be different from current password' });
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'New password and confirm password do not match' });
+      return;
+    }
+    const pwError = validateNewPassword(passwordForm.newPassword);
+    if (pwError) {
+      setPasswordMessage({ type: 'error', text: pwError });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await apiRequest(`${API_BASE_URL}/api/auth/change-password`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword
+        })
+      });
+      if (!response) {
+        setPasswordMessage({ type: 'error', text: 'Session expired. Please login again.' });
+        return;
+      }
+      const data = await parseJsonSafe(response);
+      if (!response.ok) {
+        if (data.errors) {
+          const specific = data.errors.currentPassword || data.errors.newPassword || data.message;
+          setPasswordMessage({ type: 'error', text: specific || 'Failed to change password' });
+          return;
+        }
+        throw new Error(data.message || 'Failed to change password');
+      }
+      setPasswordMessage({ type: 'success', text: 'Password changed successfully' });
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowChangePassword(false);
+    } catch (err) {
+      setPasswordMessage({ type: 'error', text: err.message || 'Failed to change password' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Helper function to get input class names
@@ -432,16 +522,74 @@ const Profile = () => {
             <div className="account-actions">
               <h2>Account</h2>
               <div className="action-buttons">
-                <button className="btn btn-outline">
-                  Change Password
-                </button>
-                <button className="btn btn-outline">
-                  Email Preferences
+                <button className="btn btn-outline btn-toggle" onClick={() => setShowChangePassword(!showChangePassword)}>
+                  {showChangePassword ? 'Close Change Password' : 'Change Password'}
                 </button>
                 <button className="btn btn-danger" onClick={handleLogout}>
                   Sign Out
                 </button>
               </div>
+              {showChangePassword && (
+                <form className="change-password-form" onSubmit={submitChangePassword}>
+                  <div className="change-password-card">
+                    {passwordMessage.text && (
+                      <div className={`password-message ${passwordMessage.type}`}>
+                        <span className="message-icon">{passwordMessage.type === 'success' ? '✅' : '⚠️'}</span>
+                        {passwordMessage.text}
+                      </div>
+                    )}
+                    <div className="password-row">
+                      <div className="password-group">
+                        <label>Current Password</label>
+                        <div className="password-input-wrapper">
+                          <span className="password-icon">🔒</span>
+                          <input
+                            type="password"
+                            name="currentPassword"
+                            value={passwordForm.currentPassword}
+                            onChange={handlePasswordChange}
+                            placeholder="Enter current password"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="password-group">
+                        <label>New Password</label>
+                        <div className="password-input-wrapper">
+                          <span className="password-icon">✨</span>
+                          <input
+                            type="password"
+                            name="newPassword"
+                            value={passwordForm.newPassword}
+                            onChange={handlePasswordChange}
+                            placeholder="Enter new password"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="password-group">
+                        <label>Confirm New Password</label>
+                        <div className="password-input-wrapper">
+                          <span className="password-icon">✅</span>
+                          <input
+                            type="password"
+                            name="confirmPassword"
+                            value={passwordForm.confirmPassword}
+                            onChange={handlePasswordChange}
+                            placeholder="Confirm new password"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                        {isLoading ? 'Changing...' : 'Change Password'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

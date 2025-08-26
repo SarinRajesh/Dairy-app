@@ -144,9 +144,8 @@ const Login = () => {
       setToken(data.token);
       setUser(data.user);
       
-      // Show success message and redirect
-      setError(''); // Clear any previous errors
-      alert(`✅ Welcome back, ${data.user.firstName}!`);
+      // Success: clear any previous errors and redirect
+      setError('');
       
       // Redirect to home page
       navigate('/');

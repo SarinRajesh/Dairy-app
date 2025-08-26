@@ -83,11 +83,13 @@
   font-size: 1.2rem;
   color: #6c757d;
   z-index: 1;
+  pointer-events: none;
+  user-select: none;
 }
 
 .form-group input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 1rem 1rem 1rem 4rem;
   border: 2px solid #e9ecef;
   border-radius: 12px;
   font-size: 1rem;
@@ -95,6 +97,11 @@
   color: #2c3e50;
   background: white;
   transition: all 0.3s ease;
+}
+
+/* Ensure icon spacing always applies even if other libs override input padding */
+.input-wrapper input {
+  padding-left: 4rem !important;
 }
 
 .form-group input:focus {
@@ -649,7 +656,10 @@
   }
   
   .form-group input {
-    padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+    padding: 0.875rem 0.875rem 0.875rem 3.25rem;
+  }
+  .input-wrapper input {
+    padding-left: 3.25rem !important;
   }
   
   .checkbox-wrapper {
